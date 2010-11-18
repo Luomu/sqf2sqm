@@ -1,4 +1,42 @@
 #!/usr/bin/python
+indchar = "  "
+ind = 0
+
+def indent():
+    global ind
+    ind += 1
+
+def unindent():
+    global ind
+    ind -= 1
+
+def out(text):
+    print(ind*indchar + text)
+
+#Class is a printable thing with an opening and a closing brace
+class BisClass:
+    def __init__(self, name):
+        self.name = name
+    def outputContents(self):
+        out("Contents")
+    def output(self):
+        out("Class {0} {{".format(self.name))
+        indent()
+        self.outputContents()
+        unindent()
+        out("};")
+
+class Mission(BisClass):
+    def __init__(self):
+        BisClass.__init__(self, "Mission")
+        self.version = Property("version",1)
+        self.randomSeed = Property("randomSeed", 101) #I chose this randomly
+        self.intel = Intel()
+        self.groups = 0
+        self.vehicles = []
+
+    def outputContents(self):
+        out(self.randomSeed.toString())
 
 class Property:
     def __init__(self, label="", value=""):
@@ -40,14 +78,6 @@ class Intel:
         self.year = 2012
         self.month = 6
         self.day = 15
-
-class Mission:
-    def __init__(self):
-        self.version = Property("version",1)
-        self.randomSeed = Property("randomSeed", 101) #I chose this randomly
-        self.intel = Intel()
-        self.groups = 0
-        self.vehicles = []
 
 #for now, this just builds an array and dumps it to the console
 class MissionPrinter:
@@ -136,4 +166,10 @@ def doIt():
     printer = MissionPrinter()
     printer.printMission(miss)
 
-doIt()
+#doIt()
+mission = Mission()
+intro = BisClass("Intro")
+#~ outro = BisClass("OutroWin")
+#~ outroL = BisClass("OutroLoose")
+mission.output()
+intro.output()
