@@ -1,5 +1,6 @@
 #!/usr/bin/python
-indchar = "  "
+import sys
+indchar = "\t"
 ind = 0
 
 def indent():
@@ -28,8 +29,8 @@ class BisClass:
         out("};")
 
 class Mission(BisClass):
-    def __init__(self):
-        BisClass.__init__(self, "Mission")
+    def __init__(self, name="Mission"):
+        BisClass.__init__(self, name)
         self.version = Property("version",1)
         self.addOns = ArrayProperty("addOns", [])
         self.addOnsAuto = ArrayProperty("addOnsAuto", [])
@@ -43,7 +44,8 @@ class Mission(BisClass):
         out(self.addOnsAuto.toString())
         out(self.randomSeed.toString())
         self.intel.output()
-        self.vehicles.output()
+        if len(self.vehicles.vehicles) > 0:
+            self.vehicles.output()
 
 class Intel(BisClass):
     def __init__(self):
@@ -123,13 +125,12 @@ def createToVehicle(create):
     #pos is overridden by setPos anyway
     return vehi
 
-def parseMission():
-    filename = "mission.sqf";
+def parseMission(filename="mission.sqf"):
     try:
         fh = open(filename, "r");
     except IOError as (errno, errstring):
         print "Error {0} opening {1}: {2}".format(errno, filename, errstring)
-        return
+        sys.exit(1)
     except:
         raise
 
@@ -161,12 +162,14 @@ def parseMission():
             elif "setPos" in line:
                 veh.position.value = line[line.rfind("[")+1:line.rfind("]")]
 
-    miss.output()
+    return miss
 
-parseMission()
-intro = BisClass("Intro")
-outro = BisClass("OutroWin")
-outroL = BisClass("OutroLoose")
-intro.output()
-outro.output()
-outroL.output()
+miss = parseMission()
+intro = Mission("Intro")
+outro = Mission("OutroWin")
+outroL = Mission("OutroLoose")
+out(Property("version",1).toString())
+miss.output()
+#~ intro.output()
+#~ outro.output()
+#~ outroL.output()
