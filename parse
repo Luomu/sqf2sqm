@@ -30,13 +30,36 @@ class Mission(BisClass):
     def __init__(self):
         BisClass.__init__(self, "Mission")
         self.version = Property("version",1)
+        self.addOns = ArrayProperty("addOns", [])
+        self.addOnsAuto = ArrayProperty("addOnsAuto", [])
         self.randomSeed = Property("randomSeed", 101) #I chose this randomly
         self.intel = Intel()
         self.groups = 0
         self.vehicles = []
 
     def outputContents(self):
+        out(self.addOns.toString())
+        out(self.addOnsAuto.toString())
         out(self.randomSeed.toString())
+        self.intel.output()
+
+class Intel(BisClass):
+    def __init__(self):
+        BisClass.__init__(self, "Intel")
+        self.briefingName=StringProperty("briefingName", "")
+        self.briefingDescription=StringProperty("")
+        self.startWeather = Property("startWeather", 0.5)
+        self.forecastWeather = Property("forecastWeather", 0.5)
+        self.year = Property("year", 2012)
+        self.month = Property("month", 6)
+        self.day = Property("day", 15)
+
+    def outputContents(self):
+        out(self.startWeather.toString())
+        out(self.forecastWeather.toString())
+        out(self.year.toString())
+        out(self.month.toString())
+        out(self.day.toString())
 
 class Property:
     def __init__(self, label="", value=""):
@@ -53,7 +76,7 @@ class ArrayProperty(Property):
     #not actually an number array at the moment. Just special formatting.
     def __init__(self, label, array):
         Property.__init__(self, label, 0)
-        self.value = [0,0,0]
+        self.value = array
 
     def toString(self):
         return "{0}[]={{{1}}};".format(self.label, self.value)
@@ -68,16 +91,6 @@ class Vehicle:
         self.side = StringProperty("side", "EMPTY")
         self.className = StringProperty("vehicle", "")
         self.skill = 0.0
-
-class Intel:
-    def __init__(self):
-        self.briefingName=""
-        self.briefingDescription=""
-        self.startWeather = 0.0
-        self.forecastWeather = 0.0
-        self.year = 2012
-        self.month = 6
-        self.day = 15
 
 #for now, this just builds an array and dumps it to the console
 class MissionPrinter:
