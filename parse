@@ -13,7 +13,8 @@ def unindent():
 def out(text):
     print(ind*indchar + text)
 
-#Class is a printable thing with an opening and a closing brace
+#Class is a printable thing with an opening and a closing brace.
+#How stuff inside the braces is printed is up to the class.
 class BisClass:
     def __init__(self, name):
         self.name = name
@@ -35,13 +36,14 @@ class Mission(BisClass):
         self.randomSeed = Property("randomSeed", 101) #I chose this randomly
         self.intel = Intel()
         self.groups = 0
-        self.vehicles = []
+        self.vehicles = Vehicles()
 
     def outputContents(self):
         out(self.addOns.toString())
         out(self.addOnsAuto.toString())
         out(self.randomSeed.toString())
         self.intel.output()
+        self.vehicles.output()
 
 class Intel(BisClass):
     def __init__(self):
@@ -60,6 +62,18 @@ class Intel(BisClass):
         out(self.year.toString())
         out(self.month.toString())
         out(self.day.toString())
+
+#container class for vehicles
+class Vehicles(BisClass):
+    def __init__(self):
+        BisClass.__init__(self, "Vehicles")
+        self.vehicles = [Vehicle(),Vehicle()]
+
+    def outputContents(self):
+        self.numveh = Property("items", len(self.vehicles))
+        out(self.numveh.toString())
+        for veh in self.vehicles:
+            veh.output()
 
 class Property:
     def __init__(self, label="", value=""):
@@ -83,8 +97,9 @@ class ArrayProperty(Property):
         #return "{0}[]={{{1},{2},{3}}};".format(self.label,
         #    self.value[0], self.value[1], self.value[2])
 
-class Vehicle:
+class Vehicle(BisClass):
     def __init__(self):
+        BisClass.__init__(self, "Vehicle")
         self.position = ArrayProperty("position", [0,0,0])
         self.azimut = Property("azimut", 0)
         self.vehicleId = Property("id",-1)
@@ -181,8 +196,10 @@ def doIt():
 
 #doIt()
 mission = Mission()
-intro = BisClass("Intro")
+#~ intro = BisClass("Intro")
 #~ outro = BisClass("OutroWin")
 #~ outroL = BisClass("OutroLoose")
 mission.output()
-intro.output()
+#~ intro.output()
+#~ outro.output()
+#~ outroL.output()
