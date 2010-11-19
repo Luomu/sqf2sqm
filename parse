@@ -67,13 +67,31 @@ class Intel(BisClass):
 class Vehicles(BisClass):
     def __init__(self):
         BisClass.__init__(self, "Vehicles")
-        self.vehicles = [Vehicle(),Vehicle()]
+        self.vehicles = [Vehicle("Item0"),Vehicle("Item1")]
 
     def outputContents(self):
         self.numveh = Property("items", len(self.vehicles))
         out(self.numveh.toString())
         for veh in self.vehicles:
             veh.output()
+
+class Vehicle(BisClass):
+    def __init__(self, name="Vehicle"):
+        BisClass.__init__(self, name)
+        self.position = ArrayProperty("position", [0,0,0])
+        self.azimut = Property("azimut", 0)
+        self.vehicleId = Property("id",-1)
+        self.side = StringProperty("side", "EMPTY")
+        self.className = StringProperty("vehicle", "")
+        self.skill = Property("skill", 0.5)
+
+    def outputContents(self):
+        out(self.position.toString())
+        out(self.azimut.toString())
+        out(self.vehicleId.toString())
+        out(self.side.toString())
+        out(self.className.toString())
+        out(self.skill.toString())
 
 class Property:
     def __init__(self, label="", value=""):
@@ -87,62 +105,12 @@ class StringProperty(Property):
         return "{0}=\"{1}\";".format(self.label, self.value)
 
 class ArrayProperty(Property):
-    #not actually an number array at the moment. Just special formatting.
     def __init__(self, label, array):
         Property.__init__(self, label, 0)
         self.value = array
 
     def toString(self):
         return "{0}[]={{{1}}};".format(self.label, self.value)
-        #return "{0}[]={{{1},{2},{3}}};".format(self.label,
-        #    self.value[0], self.value[1], self.value[2])
-
-class Vehicle(BisClass):
-    def __init__(self):
-        BisClass.__init__(self, "Vehicle")
-        self.position = ArrayProperty("position", [0,0,0])
-        self.azimut = Property("azimut", 0)
-        self.vehicleId = Property("id",-1)
-        self.side = StringProperty("side", "EMPTY")
-        self.className = StringProperty("vehicle", "")
-        self.skill = 0.0
-
-#for now, this just builds an array and dumps it to the console
-class MissionPrinter:
-    def __init__(self):
-        self.indlev = 0
-        self.indchar = "  "
-        self.data = []
-
-    def indent(self):
-        self.indlev += 1
-
-    def unindent(self):
-        self.indlev -= 1
-
-    def printProp(self, name, value):
-        self.addline("{0}=\"{1}\";".format(name,value))
-
-    def addline(self, line):
-        self.data.append((self.indlev * self.indchar)+ line)
-    def printMission(self, miss):
-        self.addline(miss.version.toString())
-        self.addline("Class Mission {");
-        self.indent()
-        self.addline("addOns[]={{}};")
-        self.addline("addOnsAuto[]={{}};")
-        self.addline(miss.randomSeed.toString())
-        self.unindent()
-        self.addline("};")
-        #~ for veh in miss.vehicles:
-            #~ self.data.append(veh.position.toString())
-            #~ self.data.append(veh.vehicleId.toString())
-            #~ self.data.append(veh.side.toString())
-            #~ self.data.append(veh.className.toString())
-            #~ self.data.append(veh.azimut.toString())
-
-        for line in self.data:
-            print line
 
 #turn a createVehicle statement into a vehicle
 def createToVehicle(create):
@@ -191,8 +159,6 @@ def doIt():
                 veh.azimut.value = line[line.rfind(" ")+1:line.rfind(";")]
             elif "setPos" in line:
                 veh.position.value = line[line.rfind("[")+1:line.rfind("]")]
-    printer = MissionPrinter()
-    printer.printMission(miss)
 
 #doIt()
 mission = Mission()
