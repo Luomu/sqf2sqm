@@ -153,6 +153,8 @@ class SqmDocument:
             raise
 
         wad = fh.readlines()
+        if not "activateAddons" in wad[0]:
+            raise Exception("{0} is not a valid sqf file".format(filename))
         fh.close()
 
         miss = Mission()
@@ -182,5 +184,5 @@ class SqmDocument:
 
         return miss
 
-doc = SqmDocument("mission.sqf")
+doc = SqmDocument(sys.argv[0])
 doc.output()
