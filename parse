@@ -25,7 +25,7 @@ class BisClass:
     def outputContents(self):
         out("Contents")
     def output(self):
-        out("Class {0} {{".format(self.name))
+        out("class {0} {{".format(self.name))
         indent()
         self.outputContents()
         unindent()
@@ -35,7 +35,6 @@ class BisClass:
 class Mission(BisClass):
     def __init__(self, name="Mission"):
         BisClass.__init__(self, name)
-        self.version = Property("version",1)
         self.addOns = ArrayProperty("addOns", [])
         self.addOnsAuto = ArrayProperty("addOnsAuto", [])
         self.randomSeed = Property("randomSeed", 101) #I chose this randomly
@@ -113,6 +112,8 @@ class Vehicle(BisClass):
         self.vehicleId = Property("id",-1)
         self.side = StringProperty("side", "EMPTY")
         self.className = StringProperty("vehicle", "")
+        self.player = StringProperty("player",None)
+        self.leader = Property("leader", None)
         self.skill = Property("skill", 0.5)
 
     def outputContents(self):
@@ -121,6 +122,10 @@ class Vehicle(BisClass):
         out(self.vehicleId.toString())
         out(self.side.toString())
         out(self.className.toString())
+        if(self.player.value != None)
+            out(self.player.toString())
+        if(self.leader.value == 1)
+            out(self.leader.toString())
         out(self.skill.toString())
 
 class Property:
@@ -140,7 +145,10 @@ class ArrayProperty(Property):
         self.value = array
 
     def toString(self):
-        return "{0}[]={{{1}}};".format(self.label, self.value)
+        if len(self.value) > 0:
+            return "{0}[]={{{1}}};".format(self.label, self.value)
+        else:
+            return "{0}[]={{}};".format(self.label)
 
 #turn a createVehicle statement into a vehicle
 def createToVehicle(create):
@@ -160,7 +168,7 @@ def createToVehicle(create):
 
 class SqmDocument:
     def __init__(self, filename):
-        self.version = Property("version", 1)
+        self.version = Property("version", 11)
         self.nextId = -1
         self.mission = self.parseMission(filename)
         self.intro = Mission("Intro")
@@ -210,6 +218,7 @@ class SqmDocument:
                 assert side != None
                 grp = Group()
                 grp.side.value = side
+                grp.name = "Item{0}".format(len(miss.groups.groups))
                 miss.groups.groups.append(grp)
             if line.startswith("_vehicle_"):
                 if isVehicle or isUnit:
@@ -236,6 +245,7 @@ class SqmDocument:
                     veh = createToVehicle(line)
                     veh.vehicleId.value = self.getNextId()
                     veh.name = "Item{0}".format(len(grp.vehicles.vehicles))
+                    veh.side.value = side
                     grp.vehicles.vehicles.append(veh)
                 elif "setDir" in line:
                     veh.azimut.value = line[line.rfind(" ")+1:line.rfind(";")]
@@ -243,6 +253,10 @@ class SqmDocument:
                     veh.position.value = line[line.rfind("[")+1:line.rfind("]")]
                 elif "setUnitAbility" in line:
                     veh.skill.value = line[line.rfind(" ")+1:line.rfind(";")]
+                elif "selectPlayer" in line:
+                    veh.player.value = "PLAYER COMMANDER"
+                elif "selectLeader" in line:
+                    veh.leader.value = 1
 
         return miss
 
