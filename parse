@@ -122,18 +122,21 @@ class Vehicle(BisClass):
         out(self.vehicleId.toString())
         out(self.side.toString())
         out(self.className.toString())
-        if(self.player.value != None)
-            out(self.player.toString())
-        if(self.leader.value == 1)
-            out(self.leader.toString())
+        self.player.output();
+        self.leader.output()
         out(self.skill.toString())
 
 class Property:
-    def __init__(self, label="", value=""):
+    def __init__(self, label="", value=None):
         self.label = label
         self.value = value
+
     def toString(self):
         return "{0}={1};".format(self.label, self.value)
+
+    def output(self):
+        if(self.value != None):
+            out(self.toString())
 
 class StringProperty(Property):
     def toString(self):
