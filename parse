@@ -48,7 +48,8 @@ class Mission(BisClass):
         out(self.addOnsAuto.toString())
         out(self.randomSeed.toString())
         self.intel.output()
-        self.groups.output()
+        if len(self.groups.groups) > 0:
+            self.groups.output()
         if len(self.vehicles.vehicles) > 0:
             self.vehicles.output()
 
@@ -150,6 +151,11 @@ def createToVehicle(create):
     #from this array we can just grab what we need
     vehi.className.value = arr[0].replace("\"","")
     #pos is overridden by setPos anyway
+    #~ vehi.position.value[0] = arr[1].strip()[1:]
+    #~ vehi.position.value[1] = arr[2].strip()
+    #~ vehi.position.value[2] = arr[3].strip()[:-1]
+    vehi.position.value = "0,1,2"
+    #todo: array format is position[]={0,0,0}
     return vehi
 
 class SqmDocument:
@@ -164,9 +170,9 @@ class SqmDocument:
     def output(self):
         out(self.version.toString())
         self.mission.output()
-        #~ self.intro.output()
-        #~ self.outro.output()
-        #~ self.outroL.output()
+        self.intro.output()
+        self.outro.output()
+        self.outroL.output()
 
     def getNextId(self):
         self.nextId += 1
@@ -235,6 +241,8 @@ class SqmDocument:
                     veh.azimut.value = line[line.rfind(" ")+1:line.rfind(";")]
                 elif "setPos" in line:
                     veh.position.value = line[line.rfind("[")+1:line.rfind("]")]
+                elif "setUnitAbility" in line:
+                    veh.skill.value = line[line.rfind(" ")+1:line.rfind(";")]
 
         return miss
 
