@@ -108,23 +108,27 @@ class Vehicle(BisClass):
     def __init__(self, name="Vehicle"):
         BisClass.__init__(self, name)
         self.position = ArrayProperty("position", [0,0,0])
+        self.infoAge = StringProperty("age", None)
         self.azimut = Property("azimut", 0)
         self.vehicleId = Property("id",-1)
         self.side = StringProperty("side", "EMPTY")
         self.className = StringProperty("vehicle", "")
         self.player = StringProperty("player",None)
         self.leader = Property("leader", None)
+        self.rank = StringProperty("rank", None)
         self.skill = Property("skill", 0.5)
 
     def outputContents(self):
-        out(self.position.toString())
-        out(self.azimut.toString())
-        out(self.vehicleId.toString())
-        out(self.side.toString())
-        out(self.className.toString())
-        self.player.output();
+        self.position.output()
+        self.infoAge.output()
+        self.azimut.output()
+        self.vehicleId.output()
+        self.side.output()
+        self.className.output()
+        self.player.output()
         self.leader.output()
-        out(self.skill.toString())
+        self.rank.output()
+        self.skill.output()
 
 class Property:
     def __init__(self, label="", value=None):
@@ -152,6 +156,10 @@ class ArrayProperty(Property):
             return "{0}[]={{{1}}};".format(self.label, self.value)
         else:
             return "{0}[]={{}};".format(self.label)
+
+#a very simple search for a string value between quotes
+def findQuotedString(line):
+    return line[line.find("\"")+1:line.rfind("\"")]
 
 #turn a createVehicle statement into a vehicle
 def createToVehicle(create):
@@ -250,6 +258,10 @@ class SqmDocument:
                     veh.name = "Item{0}".format(len(grp.vehicles.vehicles))
                     veh.side.value = side
                     grp.vehicles.vehicles.append(veh)
+                elif "setTargetAge" in line:
+                    veh.infoAge.value = findQuotedString(line)
+                elif "setUnitRank" in line:
+                    veh.rank.value = findQuotedString(line)
                 elif "setDir" in line:
                     veh.azimut.value = line[line.rfind(" ")+1:line.rfind(";")]
                 elif "setPos" in line:
