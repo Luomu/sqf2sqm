@@ -117,6 +117,9 @@ class Vehicle(BisClass):
         self.leader = Property("leader", None)
         self.rank = StringProperty("rank", None)
         self.skill = Property("skill", 0.5)
+        self.health = Property("health", None)
+        self.ammo = Property("ammo", None)
+        self.text = StringProperty("text", None) #name
 
     def outputContents(self):
         self.position.output()
@@ -129,7 +132,11 @@ class Vehicle(BisClass):
         self.leader.output()
         self.rank.output()
         self.skill.output()
+        self.health.output()
+        self.ammo.output()
+        self.text.output()
 
+#name=value;
 class Property:
     def __init__(self, label="", value=None):
         self.label = label
@@ -142,10 +149,12 @@ class Property:
         if(self.value != None):
             out(self.toString())
 
+#name="value";
 class StringProperty(Property):
     def toString(self):
         return "{0}=\"{1}\";".format(self.label, self.value)
 
+#propertyname[]={contents};
 class ArrayProperty(Property):
     def __init__(self, label, array):
         Property.__init__(self, label, 0)
@@ -160,6 +169,10 @@ class ArrayProperty(Property):
 #a very simple search for a string value between quotes
 def findQuotedString(line):
     return line[line.find("\"")+1:line.rfind("\"")]
+
+#pick a value from the end of a line
+def findSimpleValue(line):
+    return line[line.rfind(" ")+1:-3]
 
 #turn a createVehicle statement into a vehicle
 def createToVehicle(create):
@@ -258,6 +271,12 @@ class SqmDocument:
                     veh.name = "Item{0}".format(len(grp.vehicles.vehicles))
                     veh.side.value = side
                     grp.vehicles.vehicles.append(veh)
+                elif "setVehicleVarName" in line:
+                    veh.text.value = findQuotedString(line)
+                elif "setVehicleArmor" in line:
+                    veh.health.value = findSimpleValue(line)
+                elif "setVehicleAmmo" in line:
+                    veh.ammo.value = findSimpleValue(line)
                 elif "setTargetAge" in line:
                     veh.infoAge.value = findQuotedString(line)
                 elif "setUnitRank" in line:
