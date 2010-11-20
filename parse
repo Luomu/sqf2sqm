@@ -190,6 +190,24 @@ def createToVehicle(create):
     vehi.position.value = "{0}, {1}, {2}".format(x, y, z)
     return vehi
 
+def createToUnit(create):
+    #we expect:
+    #_this = _group_0 createUnit ["BAF_Soldier_TL_W", [1370.531, 1470.5341], [], 5, "FORM"];
+    unit = Vehicle()
+    create = create[create.find("[")+1:-4]
+    unit.className.value = create[1:create.find("\"",1)]
+    position = create[create.find("[")+1:create.find("]")]
+    #it can be 2 or 3 length
+    position = position.replace(" ","").split(",")
+    x = position[0]
+    y = position[1]
+    if len(position) > 2:
+        z = position[2]
+    else:
+        z = 0
+    unit.position.value = "{0}, {1}, {2}".format(x, z, y)
+    return unit
+
 class SqmDocument:
     def __init__(self, filename):
         self.version = Property("version", 11)
@@ -266,7 +284,7 @@ class SqmDocument:
                     veh.name = "Item{0}".format(len(miss.vehicles.vehicles))
                     miss.vehicles.vehicles.append(veh)
                 if "createUnit" in line:
-                    veh = createToVehicle(line)
+                    veh = createToUnit(line)
                     veh.vehicleId.value = self.getNextId()
                     veh.name = "Item{0}".format(len(grp.vehicles.vehicles))
                     veh.side.value = side
