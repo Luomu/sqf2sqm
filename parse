@@ -29,7 +29,8 @@ class BisClass:
         indent()
         self.outputContents()
         unindent()
-        out("};")
+        #~ out("};")
+        out("}}; // {0}".format(self.name))
 
 class Mission(BisClass):
     def __init__(self, name="Mission"):
@@ -39,7 +40,7 @@ class Mission(BisClass):
         self.addOnsAuto = ArrayProperty("addOnsAuto", [])
         self.randomSeed = Property("randomSeed", 101) #I chose this randomly
         self.intel = Intel()
-        self.groups = 0
+        self.groups = Groups()
         self.vehicles = Vehicles()
 
     def outputContents(self):
@@ -47,6 +48,7 @@ class Mission(BisClass):
         out(self.addOnsAuto.toString())
         out(self.randomSeed.toString())
         self.intel.output()
+        self.groups.output()
         if len(self.vehicles.vehicles) > 0:
             self.vehicles.output()
 
@@ -68,6 +70,7 @@ class Intel(BisClass):
         out(self.month.toString())
         out(self.day.toString())
 
+#container class for groups
 class Groups(BisClass):
     def __init__(self):
         BisClass.__init__(self, "Groups")
@@ -78,6 +81,16 @@ class Groups(BisClass):
         out(self.numgrps.toString())
         for grp in self.groups:
             grp.output()
+
+class Group(BisClass):
+    def __init__(self):
+        BisClass.__init__(self, "Group") #should be: ItemN
+        self.side = StringProperty("side", "WEST")
+        self.vehicles = Vehicles()
+
+    def outputContents(self):
+        out(self.side.toString())
+        self.vehicles.output()
 
 #container class for vehicles
 class Vehicles(BisClass):
@@ -142,6 +155,7 @@ def createToVehicle(create):
 class SqmDocument:
     def __init__(self, filename):
         self.version = Property("version", 1)
+        self.nextId = -1
         self.mission = self.parseMission(filename)
         self.intro = Mission("Intro")
         self.outro = Mission("OutroWin")
@@ -153,6 +167,10 @@ class SqmDocument:
         #~ self.intro.output()
         #~ self.outro.output()
         #~ self.outroL.output()
+
+    def getNextId(self):
+        self.nextId += 1
+        return self.nextId
 
     def parseMission(self, filename):
         try:
@@ -170,14 +188,23 @@ class SqmDocument:
 
         miss = Mission()
 
+        side = None
         isVehicle = False
         isUnit = False
 
         for line in wad:
+            if "createCenter" in line:
+                if "west" in line:
+                    side = "WEST"
+                elif "east" in line:
+                    side = "EAST"
+                else:
+                    side = None
             if "createGroup" in line:
-                print "A group!"
-                print line
-                sys.exit(1)
+                assert side != None
+                grp = Group()
+                grp.side.value = side
+                miss.groups.groups.append(grp)
             if line.startswith("_vehicle_"):
                 if isVehicle or isUnit:
                     raise Exception("Already creating a unit or a vehicle")
@@ -196,9 +223,14 @@ class SqmDocument:
                     #we can extract class, position, markers,
                     #placement and special from this
                     veh = createToVehicle(line)
-                    veh.vehicleId.value = len(miss.vehicles.vehicles)
-                    veh.name = "Item{0}".format(veh.vehicleId.value)
+                    veh.vehicleId.value = self.getNextId()
+                    veh.name = "Item{0}".format(len(miss.vehicles.vehicles))
                     miss.vehicles.vehicles.append(veh)
+                if "createUnit" in line:
+                    veh = createToVehicle(line)
+                    veh.vehicleId.value = self.getNextId()
+                    veh.name = "Item{0}".format(len(grp.vehicles.vehicles))
+                    grp.vehicles.vehicles.append(veh)
                 elif "setDir" in line:
                     veh.azimut.value = line[line.rfind(" ")+1:line.rfind(";")]
                 elif "setPos" in line:
