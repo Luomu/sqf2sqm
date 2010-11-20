@@ -68,6 +68,17 @@ class Intel(BisClass):
         out(self.month.toString())
         out(self.day.toString())
 
+class Groups(BisClass):
+    def __init__(self):
+        BisClass.__init__(self, "Groups")
+        self.groups = []
+
+    def outputContents(self):
+        self.numgrps = Property("items", len(self.groups))
+        out(self.numgrps.toString())
+        for grp in self.groups:
+            grp.output()
+
 #container class for vehicles
 class Vehicles(BisClass):
     def __init__(self):
@@ -139,9 +150,9 @@ class SqmDocument:
     def output(self):
         out(self.version.toString())
         self.mission.output()
-        self.intro.output()
-        self.outro.output()
-        self.outroL.output()
+        #~ self.intro.output()
+        #~ self.outro.output()
+        #~ self.outroL.output()
 
     def parseMission(self, filename):
         try:
@@ -160,17 +171,28 @@ class SqmDocument:
         miss = Mission()
 
         isVehicle = False
+        isUnit = False
 
         for line in wad:
+            if "createGroup" in line:
+                print "A group!"
+                print line
+                sys.exit(1)
             if line.startswith("_vehicle_"):
-                if isVehicle:
-                    raise Exception("Already creating a vehicle")
+                if isVehicle or isUnit:
+                    raise Exception("Already creating a unit or a vehicle")
                 else:
                     isVehicle = True
-            if isVehicle:
-                if line.startswith("};"):
-                    isVehicle = False
-                elif "createVehicle" in line:
+            if line.startswith("_unit_"):
+                if isUnit or isVehicle:
+                    raise Exception("Already creating a unit or a vehicle")
+                else:
+                    isUnit = True
+            if line.startswith("};"):
+                isVehicle = False
+                isUnit = False
+            if isVehicle or isUnit:
+                if "createVehicle" in line:
                     #we can extract class, position, markers,
                     #placement and special from this
                     veh = createToVehicle(line)
@@ -184,5 +206,5 @@ class SqmDocument:
 
         return miss
 
-doc = SqmDocument(sys.argv[0])
+doc = SqmDocument(sys.argv[1] if len(sys.argv) > 1 else "mission.sqf")
 doc.output()
