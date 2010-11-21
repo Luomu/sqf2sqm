@@ -178,16 +178,17 @@ def findSimpleValue(line):
 def createToVehicle(create):
     #we can expect the statement to have a certain structure
     #_this = createVehicle ["Fort_Barracks_USMC", [1224.7141, 1484.4183, 1.1444092e-005], [], 0, "CAN_COLLIDE"];
-    vehi = Vehicle("Unnamed")
-    arr = create[create.find("[")+1:create.rfind("];")].split(",")
+    #or
+    #_this = createVehicle ["RoadBarrier_long", [4234.3018, 3948.8118], [], 0, "CAN_COLLIDE"];
+    vehi = Vehicle()
+    create = create[create.find("[")+1:create.rfind("];")]
+    arr = create.split(",")
     #from this array we can just grab what we need
     vehi.className.value = arr[0].replace("\"","")
-    #in vehicles pos is overridden by setPos but not for units
-    #todo: this is silly
-    x = arr[1].strip()[1:]
-    z = arr[2].strip()
-    y = arr[3].strip()[:-1]
-    vehi.position.value = "{0}, {1}, {2}".format(x, y, z)
+
+    #in vehicles pos is overridden by setPos anyway
+    position = create[create.find("[")+1:create.find("]")]
+    vehi.position.value = position
     return vehi
 
 def createToUnit(create):
@@ -304,7 +305,10 @@ class SqmDocument:
                 elif "setPos" in line:
                     #notice y,z swap
                     pos = line[line.rfind("[")+1:line.rfind("]")].split(",")
-                    veh.position.value = "{0}, {1}, {2}".format(pos[0],pos[2],pos[1])
+                    x = pos[0]
+                    y = pos[1]
+                    z = pos[2] if len(pos) > 2 else 0
+                    veh.position.value = "{0}, {1}, {2}".format(x, z, y)
                 elif "setUnitAbility" in line:
                     veh.skill.value = line[line.rfind(" ")+1:line.rfind(";")]
                 elif "selectPlayer" in line:
