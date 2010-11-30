@@ -108,6 +108,7 @@ class Vehicle(BisClass):
     def __init__(self, name="Vehicle"):
         BisClass.__init__(self, name)
         self.position = ArrayProperty("position", [0,0,0])
+        self.placement = Property("placement", None)
         self.infoAge = StringProperty("age", None)
         self.azimut = Property("azimut", 0)
         self.vehicleId = Property("id",-1)
@@ -123,6 +124,7 @@ class Vehicle(BisClass):
 
     def outputContents(self):
         self.position.output()
+        self.placement.output()
         self.infoAge.output()
         self.azimut.output()
         self.vehicleId.output()
@@ -207,6 +209,7 @@ def createToUnit(create):
     else:
         z = 0
     unit.position.value = "{0}, {1}, {2}".format(x, z, y)
+    unit.placement.value = create.split(",")[-2].strip()
     return unit
 
 class SqmDocument:
