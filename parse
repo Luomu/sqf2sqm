@@ -31,7 +31,6 @@ class BisClass:
         indent()
         self.outputContents()
         unindent()
-        #~ out("};")
         out("}}; // {0}".format(self.name))
 
 class Mission(BisClass):
@@ -325,6 +324,7 @@ try:
     doc.output()
 except IOError as (errno, errstring):
     print "I/O error {0}: {1}".format(errno, errstring)
+    #we wait for a keypress for non-terminal users to see the message
     raw_input("Press a key to exit")
 except Exception as (errstring):
     print "Exception: {0}".format(errstring)
