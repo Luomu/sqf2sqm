@@ -235,13 +235,7 @@ class SqmDocument:
         return self.nextId
 
     def parseMission(self, filename):
-        try:
-            fh = open(filename, "r");
-        except IOError as (errno, errstring):
-            print "Error {0} opening {1}: {2}".format(errno, filename, errstring)
-            sys.exit(1)
-        except:
-            raise
+        fh = open(filename, "r");
 
         wad = fh.readlines()
         if not "activateAddons" in wad[0]:
@@ -323,9 +317,17 @@ class SqmDocument:
 
         return miss
 
-infilename = sys.argv[1] if len(sys.argv) > 1 else "mission.sqf"
-outfilename = os.path.join(os.path.dirname(infilename), "mission.sqm")
-doc = SqmDocument(infilename)
-handle = open(outfilename, "w")
-doc.output()
+try:
+    infilename = sys.argv[1] if len(sys.argv) > 1 else "mission.sqf"
+    outfilename = os.path.join(os.path.dirname(infilename), "mission.sqm")
+    doc = SqmDocument(infilename)
+    handle = open(outfilename, "w")
+    doc.output()
+except IOError as (errno, errstring):
+    print "I/O error {0}: {1}".format(errno, errstring)
+    raw_input("Press a key to exit")
+except Exception as (errstring):
+    print "Exception: {0}".format(errstring)
+    raw_input("Press a key to exit")
+
 if handle != None: handle.close()
