@@ -1,10 +1,12 @@
 #!/usr/bin/python
 import sys
+import os
 
 #common things for outputting
 #can be changed to file output later
 indchar = "\t"
 ind = 0
+handle = None
 
 def indent():
     global ind
@@ -15,7 +17,7 @@ def unindent():
     ind -= 1
 
 def out(text):
-    print(ind*indchar + text)
+    print >>handle, (ind*indchar + text)
 
 #Class is a printable thing with an opening and a closing brace.
 #How stuff inside the braces is printed is up to the class.
@@ -321,5 +323,9 @@ class SqmDocument:
 
         return miss
 
-doc = SqmDocument(sys.argv[1] if len(sys.argv) > 1 else "mission.sqf")
+infilename = sys.argv[1] if len(sys.argv) > 1 else "mission.sqf"
+outfilename = os.path.join(os.path.dirname(infilename), "mission.sqm")
+doc = SqmDocument(infilename)
+handle = open(outfilename, "w")
 doc.output()
+if handle != None: handle.close()
