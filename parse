@@ -270,6 +270,7 @@ class SqmDocument:
         side = None
         isVehicle = False
         isUnit = False
+        isMarker = False
 
         for line in wad:
             if "createCenter" in line:
@@ -337,6 +338,26 @@ class SqmDocument:
                     veh.player.value = "PLAYER COMMANDER"
                 elif "selectLeader" in line:
                     veh.leader.value = 1
+            if "createMarker" in line:
+                isMarker = True
+                mrk = createMarker(line)
+            if isMarker:
+                if "setMarkerShape" in line:
+                    mrk.markerShape.value = findQuotedString(line)
+                elif "setMarkerText" in line:
+                    mrk.markerText.value = findQuotedString(line)
+                elif "setMarkerType" in line:
+                    mrk.markerType.value = findQuotedString(line)
+                elif "setMarkerBrush" in line:
+                    mrk.markerBrush.value = findQuotedString(line)
+                elif "setMarkerSize" in line:
+                    sizeArray = line[line.rfind("[")+1:line.rfind("]")].split(",")
+                    mrk.axisA.value = sizeArray[0].strip()
+                    mrk.axisB.value = sizeArray[1].strip()
+                elif line.startsWith("_marker"):
+                    isMarker = False
+                else:
+                    raise Exception("Error while creating marker, line: {0}".format(line))
 
         return miss
 
