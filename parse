@@ -139,6 +139,30 @@ class Vehicle(BisClass):
         self.ammo.output()
         self.text.output()
 
+class Marker(BisClass):
+    def __init__(self, name="Marker"):
+        BisClass.__init__(self, name)
+        self.position = ArrayProperty("position", [0,0,0])
+        self.markerName = StringProperty("name")
+        self.markerText = StringProperty("text")
+        self.markerType = StringProperty("type")
+        self.markerColor = StringProperty("colorName")
+        self.markerFill = StringProperty("fillName")
+        self.axisA = Property("a")
+        self.axisB = Property("b")
+        self.angle = Property("angle")
+    
+    def outputContents(self):
+        self.position.output()
+        self.markerName.output()
+        self.markerText.output()
+        self.markerType.output()
+        self.markerColor.output()
+        self.markerFill.output()
+        self.axisA.output()
+        self.axisB.output()
+        self.angle.output()
+
 #name=value;
 class Property:
     def __init__(self, label="", value=None):
