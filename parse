@@ -237,6 +237,18 @@ def createToUnit(create):
     unit.placement.value = create.split(",")[-2].strip()
     return unit
 
+def findBracketedString(brstring):
+    brstring = brstring[brstring.find("[")+1:brstring.find("]")]
+    return brstring
+
+def createMarker(create):
+    #expected: _this = createMarker ["markerName", [posx, posz, posy]];"
+    mark = Marker()
+    create = findBracketedString(create)
+    mark.markerName.value = findQuotedString(create)
+    return mark
+    
+
 class SqmDocument:
     def __init__(self, filename):
         self.version = Property("version", 11)
