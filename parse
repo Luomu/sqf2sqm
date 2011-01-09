@@ -42,6 +42,7 @@ class Mission(BisClass):
         self.intel = Intel()
         self.groups = Groups()
         self.vehicles = Vehicles()
+        self.markers = Markers()
 
     def outputContents(self):
         out(self.addOns.toString())
@@ -52,6 +53,8 @@ class Mission(BisClass):
             self.groups.output()
         if len(self.vehicles.vehicles) > 0:
             self.vehicles.output()
+        if len(self.markers.markers) > 0:
+            self.markers.output()
 
 class Intel(BisClass):
     def __init__(self):
@@ -104,6 +107,18 @@ class Vehicles(BisClass):
         out(self.numveh.toString())
         for veh in self.vehicles:
             veh.output()
+
+#container class for markers
+class Markers(BisClass):
+    def __init__(self):
+        BisClass.__init__(self, "Markers")
+        self.markers = []
+    
+    def outputContents(self):
+        self.numMarkers = Property("markers", len(self.markers))
+        out(self.numMarkers.toString())
+        for mrk in self.markers:
+            mrk.output()
 
 class Vehicle(BisClass):
     def __init__(self, name="Vehicle"):
@@ -364,10 +379,12 @@ class SqmDocument:
             if "createMarker" in line:
                 isMarker = True
                 mrk = createMarker(line)
+                mrk.name = "Item{0}".format(len(miss.markers.markers))
+                miss.markers.markers.append(mrk)
                 continue
             if isMarker:
                 if "setMarkerShape" in line:
-                    mrk.markerShape.value = findQuotedString(line)
+                    mrk.markerType.value = findQuotedString(line)
                 elif "setMarkerText" in line:
                     mrk.markerText.value = findQuotedString(line)
                 elif "setMarkerType" in line:
@@ -378,6 +395,8 @@ class SqmDocument:
                     sizeArray = line[line.rfind("[")+1:line.rfind("]")].split(",")
                     mrk.axisA.value = sizeArray[0].strip()
                     mrk.axisB.value = sizeArray[1].strip()
+                elif "setMarkerColor" in line:
+                    mrk.markerColor.value = findQuotedString(line)
                 elif line.startswith("_marker_"):
                     isMarker = False
                 else:
