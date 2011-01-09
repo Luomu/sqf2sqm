@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import sys
 import os
+import random
 
 #common things for outputting
 #can be changed to file output later
@@ -38,7 +39,7 @@ class Mission(BisClass):
         BisClass.__init__(self, name)
         self.addOns = ArrayProperty("addOns", [])
         self.addOnsAuto = ArrayProperty("addOnsAuto", [])
-        self.randomSeed = Property("randomSeed", 101) #I chose this randomly
+        self.randomSeed = Property("randomSeed", random.randint(100,5000))
         self.intel = Intel()
         self.groups = Groups()
         self.vehicles = Vehicles()
