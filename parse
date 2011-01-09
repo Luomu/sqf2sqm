@@ -142,7 +142,7 @@ class Vehicle(BisClass):
 class Marker(BisClass):
     def __init__(self, name="Marker"):
         BisClass.__init__(self, name)
-        self.position = ArrayProperty("position", [0,0,0])
+        self.position = Position("0,0,0")
         self.markerName = StringProperty("name")
         self.markerText = StringProperty("text")
         self.markerType = StringProperty("type")
@@ -192,6 +192,16 @@ class ArrayProperty(Property):
             return "{0}[]={{{1}}};".format(self.label, self.value)
         else:
             return "{0}[]={{}};".format(self.label)
+
+class Position(Property):
+    def __init__(self, posstring):
+        Property.__init__(self, "position")
+        self.x = 1337
+        self.y = 2337
+        self.z = 3337
+    
+    def toString(self):
+        return "{0}[]={{{1},{2},{3}}};".format(self.label, self.x, self.y, self.z)
 
 #a very simple search for a string value between quotes
 def findQuotedString(line):
@@ -246,6 +256,7 @@ def createMarker(create):
     mark = Marker()
     create = findBracketedString(create)
     mark.markerName.value = findQuotedString(create)
+    mark.position = Position(findBracketedString(create))
     return mark
     
 
@@ -366,7 +377,7 @@ class SqmDocument:
                     sizeArray = line[line.rfind("[")+1:line.rfind("]")].split(",")
                     mrk.axisA.value = sizeArray[0].strip()
                     mrk.axisB.value = sizeArray[1].strip()
-                elif line.startsWith("_marker"):
+                elif line.startsWith("_marker_"):
                     isMarker = False
                 else:
                     raise Exception("Error while creating marker, line: {0}".format(line))
