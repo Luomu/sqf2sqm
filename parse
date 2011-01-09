@@ -115,7 +115,7 @@ class Markers(BisClass):
         self.markers = []
     
     def outputContents(self):
-        self.numMarkers = Property("markers", len(self.markers))
+        self.numMarkers = Property("items", len(self.markers))
         out(self.numMarkers.toString())
         for mrk in self.markers:
             mrk.output()
@@ -160,23 +160,27 @@ class Marker(BisClass):
         self.position = Position("0,0,0")
         self.markerName = StringProperty("name")
         self.markerText = StringProperty("text")
+        self.markerShape = StringProperty("markerType")
         self.markerType = StringProperty("type")
         self.markerColor = StringProperty("colorName")
         self.markerFill = StringProperty("fillName")
         self.axisA = Property("a")
         self.axisB = Property("b")
         self.angle = Property("angle")
+        self.drawBorder = Property("drawBorder", 1)
     
     def outputContents(self):
         self.position.output()
         self.markerName.output()
         self.markerText.output()
+        self.markerShape.output()
         self.markerType.output()
         self.markerColor.output()
         self.markerFill.output()
         self.axisA.output()
         self.axisB.output()
         self.angle.output()
+        self.drawBorder.output()
 
 #name=value;
 class Property:
@@ -211,12 +215,21 @@ class ArrayProperty(Property):
 class Position(Property):
     def __init__(self, posstring):
         Property.__init__(self, "position")
-        self.x = 1337
-        self.y = 2337
-        self.z = 3337
+        self.value = 1 #hack
+        #it can be 2 or 3 length
+        position = posstring.replace(" ","").split(",")
+        self.x = position[0]
+        self.y = position[1]
+        if len(position) > 2:
+            self.z = position[2]
+        else:
+            self.z = None
     
     def toString(self):
-        return "{0}[]={{{1},{2},{3}}};".format(self.label, self.x, self.y, self.z)
+        if self.z is None:
+            return "{0}[]={{{1},0,{2}}};".format(self.label, self.x, self.y)
+        else:
+            return "{0}[]={{{1},{2},{3}}};".format(self.label, self.x, self.z, self.y)
 
 #a very simple search for a string value between quotes
 def findQuotedString(line):
@@ -263,7 +276,7 @@ def createToUnit(create):
     return unit
 
 def findBracketedString(brstring):
-    brstring = brstring[brstring.find("[")+1:brstring.find("]")]
+    brstring = brstring[brstring.find("[")+1:brstring.rfind("]")]
     return brstring
 
 def createMarker(create):
@@ -384,7 +397,7 @@ class SqmDocument:
                 continue
             if isMarker:
                 if "setMarkerShape" in line:
-                    mrk.markerType.value = findQuotedString(line)
+                    mrk.markerShape.value = findQuotedString(line)
                 elif "setMarkerText" in line:
                     mrk.markerText.value = findQuotedString(line)
                 elif "setMarkerType" in line:
